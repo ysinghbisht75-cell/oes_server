@@ -19,7 +19,7 @@ export async function loginUser(request, response) {
       error:
         role === 'admin'
           ? 'Invalid admin credentials.'
-          : 'Invalid student credentials. Register first or use the admin account.',
+          : 'Invalid student credentials. Register first .',
     })
     return
   }
