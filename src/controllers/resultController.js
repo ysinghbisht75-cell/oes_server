@@ -11,7 +11,7 @@ export async function getResults(request, response) {
 }
 
 export async function createResult(request, response) {
-  const { examId, student, studentEmail, responses } = request.body
+  const { examId, student, studentEmail, responses, proctorEvents = [] } = request.body
   const numericExamId = Number(examId)
   const normalizedStudentEmail = String(studentEmail || '').trim().toLowerCase()
   const normalizedStudentName = String(student || '').trim()
@@ -57,6 +57,14 @@ export async function createResult(request, response) {
   })
 
   const score = answers.reduce((count, answer) => count + (answer.isCorrect ? 1 : 0), 0)
+  const normalizedProctorEvents = (proctorEvents || []).map((event) => ({
+    eventType: String(event?.eventType || '').trim(),
+    details: String(event?.details || '').trim(),
+    occurredAt: String(event?.occurredAt || new Date().toISOString()),
+  }))
+  const proctorSummary = normalizedProctorEvents.length
+    ? `Detected ${normalizedProctorEvents.length} proctoring event${normalizedProctorEvents.length === 1 ? '' : 's'}: ${normalizedProctorEvents.map((event) => event.eventType).join(', ')}`
+    : 'No suspicious behavior detected.'
 
   await Result.create({
     id: getNextId(),
@@ -70,6 +78,8 @@ export async function createResult(request, response) {
     published: false,
     date: new Date().toISOString(),
     answers,
+    proctorEvents: normalizedProctorEvents,
+    proctorSummary,
   })
 
   response.status(201).json({ results: await listResults() })

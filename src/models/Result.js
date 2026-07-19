@@ -61,6 +61,20 @@ const resultSchema = new mongoose.Schema(
       ],
       default: [],
     },
+    proctorEvents: {
+      type: [
+        {
+          eventType: String,
+          details: String,
+          occurredAt: String,
+        },
+      ],
+      default: [],
+    },
+    proctorSummary: {
+      type: String,
+      default: 'No suspicious behavior detected.',
+    },
   },
   { timestamps: true },
 )
